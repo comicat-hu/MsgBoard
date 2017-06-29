@@ -3,15 +3,21 @@
     <title>New Post</title>
 </head>
 <body>
-    <p><%= content %></p>
+    <h2><%= content %></h2>
+    <hr>
     <form method="post">
         <p>Title:</p> 
-        <input type="text" name="title"><br><br>
+        <input type="text" name="title" size="80"><br><br>
         <p>Message:</p> 
-        <textarea type="text" name="message" cols="40" rows="10"></textarea><br>        
-        <p>Author:</p> 
-        <input type="text" name="author"><br><br>
+        <textarea type="text" name="message" cols="80" rows="20"></textarea><br>
+        <% if(username) {%>
+            <p>Author: <%= username %></p>
+        <% }else { %>
+            <p>Author:</p> 
+            <input type="text" name="author"><br><br>
+        <% } %>
         <button type="submit" name="post">Post</button>
         <a href = "http://127.0.0.1:3000/post"><button name="cancel">Cancel</button></a>
     </form>
+    <hr>
 </body>

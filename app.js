@@ -26,6 +26,10 @@ app.set('view engine', 'ejs');
 app.use(express.static(__dirname + 'public'));
 
 
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+
 
 app.get('/post/:postId', function (req, res, next) {
 
@@ -54,7 +58,7 @@ app.use('/post', function (req, res) {
 
             if(result) {
                 res.status(200);
-                res.render('allpost', {result});
+                res.render('allpost', {result, username : req.cookies.username || 'vistor'});
             }else {
                 res.status(200);
                 res.send('No post here :(');
@@ -62,24 +66,43 @@ app.use('/post', function (req, res) {
 
         });
     }
-    else if(req.method === 'POST') {
+    else if(req.method === 'POST' && req.cookies.username !== 'visitor') {
         console.log(req.body.remove)
 
         if(req.body.hasOwnProperty('remove')) {
 
-            post.findOneAndUpdate({postId: req.body.remove}, {unlink: true}, {upsert:true}, function(err, result){
-                if (err) return res.send(500, { error: err });
+            post.findOne({postId: req.body.remove}, function(err, result) {
 
-                console.log("success update");
+                if(result.author === req.cookies.username || req.cookies.username === 'comi'){
+                    post.findOneAndUpdate({postId: req.body.remove}, {unlink: true}, {upsert:true}, function(err, result){
+                        if (err) return res.send(500, { error: err });
+
+                        console.log("success remove");
+                    });
+                }
+                res.redirect('/post');
+
             });
-
-
-            res.redirect('/post');
+            
 
         }
         else if(req.body.hasOwnProperty('edit')) {
-            res.redirect('/edit/' + req.body.edit);
+            console.log('edit post')
+            post.findOne({postId: req.body.edit}, function(err, result) {
+
+                console.log('findOne')
+
+                if(result.author === req.cookies.username || req.cookies.username === 'comi')
+                    res.redirect('/edit/' + req.body.edit);
+                else
+                    res.redirect('/post');
+            });
         }
+        
+
+    }
+    else {
+        res.redirect('/post');
     }
 
 });
@@ -106,7 +129,7 @@ app.use('/edit/:postId', function (req, res) {
 
         });
     }
-    else if(req.method === 'POST') {
+    else if(req.method === 'POST' && req.body.hasOwnProperty('post')) {
 
         let editData = {
 
@@ -122,6 +145,10 @@ app.use('/edit/:postId', function (req, res) {
         });
 
         res.redirect('/post/' + req.params.postId); 
+    }else {
+
+        res.redirect('/post')
+        
     }
 
 });
@@ -133,7 +160,7 @@ app.use('/new', function (req, res) {
     if(req.method === 'GET') {
         console.log(req.method + ' 127.0.0.1:3000/new')
         res.status(200);
-        res.render('newpost', {content: 'Write Something'})
+        res.render('newpost', {content: 'Write Something', username: req.cookies.username})
     }
     else if(req.method === 'POST' && req.body.hasOwnProperty('post')) {
 
@@ -150,7 +177,7 @@ app.use('/new', function (req, res) {
 
                 postId: postId,
                 title:  req.body.title || 'No title',
-                author: req.body.author || 'Anonymous',
+                author: req.body.author || req.cookies.username || 'visitor',
                 message:   req.body.message,
                 date: new Date(),
                 unlink: false,
@@ -176,9 +203,55 @@ app.use('/new', function (req, res) {
 
 app.use('/', function (req, res) {
 
-    console.log(req.method + ' 127.0.0.1:3000/')
-    res.status(200);
-    res.render('index');
+    if(req.method === 'GET') {
+        console.log(req.method + ' 127.0.0.1:3000/')
+
+
+        if (req.cookies.username) {
+            console.log(req.cookies.username + ' repeat visit!');
+
+        } else {
+            res.cookie('username', 'visitor', {maxAge: 600 * 1000});
+            console.log('first visit')
+        }
+
+        post.count({unlink: false}, function(err, nowPosts){
+
+            post.count({}, function(err, totalPosts){
+
+                res.status(200);
+                res.render('index', {username: req.cookies.username || 'visitor', nowPosts, totalPosts});
+
+            });
+
+        });
+   
+    }
+    else if(req.method === 'POST'  && req.body.hasOwnProperty('login')) {
+        console.log('login')
+        if(req.body.username.match(/\w/g)){
+            console.log(req.body.username + ' good username')
+            res.cookie('username', req.body.username , {maxAge: 600 * 1000});
+            res.redirect('/post');
+        }
+        else{
+            console.log(req.body.username + ' invalid username')
+            res.redirect('/');
+        }
+
+    }
+    else if(req.method === 'POST'  && req.body.hasOwnProperty('visit')) {
+
+        console.log('login by visitor')
+        res.cookie('username', 'visitor' , {maxAge: 600 * 1000});
+        res.redirect('/post');
+
+    }
+    else {
+        console.log('redirect /')
+        res.redirect('/');
+    }
+
 });
 
 

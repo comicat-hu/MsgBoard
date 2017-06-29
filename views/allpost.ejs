@@ -4,7 +4,10 @@
 </head>
 <body>
     <h1>All Post</h1>
+    <p>身份: <%=username%> </p>
     <a href = "http://127.0.0.1:3000/new"><button>New Post</button></a>
+    <a href = "http://127.0.0.1:3000/"><button name="logout">Back Home</button></a>
+
     <hr></hr>
     <div>
         <% for(var i in result) { %>
@@ -12,7 +15,8 @@
             <!-- <li><%= result[i].postId %></li> -->
             <h2><%= result[i].title %></h2>
             <p>Author: <%= result[i].author %></p>
-            <p>Message: <%= result[i].message %></p>
+            <p>--</p>
+            <pre style="font-size: 20px"><%= result[i].message %></pre>
             <p>Comment: <%= result[i].comment %></p>
             <p>Date: <%= result[i].date %></p>
             <form method="post">
@@ -25,6 +29,9 @@
     </div>
 
 
+
     <a href = "http://127.0.0.1:3000/new"><button>New Post</button></a>
+    <a href = "http://127.0.0.1:3000/"><button name="logout">Back Home</button></a>
+    <hr>
 
 </body>

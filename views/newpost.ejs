@@ -1,0 +1,17 @@
+<head>
+    <meta charset="utf-8">
+    <title>New Post</title>
+</head>
+<body>
+    <p><%= content %></p>
+    <form method="post">
+        <p>Title:</p> 
+        <input type="text" name="title"><br><br>
+        <p>Message:</p> 
+        <textarea type="text" name="message" cols="40" rows="10"></textarea><br>        
+        <p>Author:</p> 
+        <input type="text" name="author"><br><br>
+        <button type="submit" name="post">Post</button>
+        <a href = "http://127.0.0.1:3000/post"><button name="cancel">Cancel</button></a>
+    </form>
+</body>

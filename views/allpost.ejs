@@ -1,0 +1,30 @@
+<head>
+    <meta charset="utf-8">
+    <title>All Post</title>
+</head>
+<body>
+    <h1>All Post</h1>
+    <a href = "http://127.0.0.1:3000/new"><button>New Post</button></a>
+    <hr></hr>
+    <div>
+        <% for(var i in result) { %>
+            <% if(!result[i].unlink) {%>
+            <!-- <li><%= result[i].postId %></li> -->
+            <h2><%= result[i].title %></h2>
+            <p>Author: <%= result[i].author %></p>
+            <p>Message: <%= result[i].message %></p>
+            <p>Comment: <%= result[i].comment %></p>
+            <p>Date: <%= result[i].date %></p>
+            <form method="post">
+                <button name="edit" value=<%= result[i].postId %>  >Edit Post</button>
+                <button name="remove" value=<%= result[i].postId %>  >Remove Post</button>
+            </form>
+            <hr></hr>
+            <% } %>
+        <% } %>
+    </div>
+
+
+    <a href = "http://127.0.0.1:3000/new"><button>New Post</button></a>
+
+</body>

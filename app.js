@@ -29,6 +29,20 @@ app.use(express.static(__dirname + 'public'));
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+//request
+var request = require("request");
+
+var options = { 
+    method: 'GET',
+    url: 'https://tools.clifflu.net/ip',
+    headers:
+    { 
+        'cache-control': 'no-cache',
+        'content-type': 'application/json'
+    }
+};
+
+
 
 
 app.get('/post/:postId', function (req, res, next) {
@@ -219,8 +233,18 @@ app.use('/', function (req, res) {
 
             post.count({}, function(err, totalPosts){
 
-                res.status(200);
-                res.render('index', {username: req.cookies.username || 'visitor', nowPosts, totalPosts});
+                request(options, function (error, response, body) {
+                    if (error) throw new Error(error);
+
+                    let resbody = JSON.parse(response.body)
+                    let Ip = resbody.sourceIp;
+                    console.log(Ip);
+
+                    res.status(200);
+                    res.render('index', {username: req.cookies.username || 'visitor', nowPosts, totalPosts, Ip});
+                });
+
+
 
             });
 

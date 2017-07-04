@@ -14,7 +14,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () { console.log("Database Connected."); });
 
 //PostSchema
-var schema = require('./schema.js');
+var schema = require('./public/js/schema.js');
 
 var post = mongoose.model('post', schema);
 
@@ -23,7 +23,7 @@ app.set('view engine', 'ejs');
 
 
 //set where static file
-app.use(express.static(__dirname + 'public'));
+app.use(express.static(__dirname + '/public'));
 
 
 var cookieParser = require('cookie-parser');
@@ -37,15 +37,32 @@ var options = {
     url: 'https://tools.clifflu.net/ip',
     headers:
     { 
-        'cache-control': 'no-cache',
         'content-type': 'application/json'
-    }
+    },
+    json: true
 };
 
 
+const page_posts = 5;
 
 
-app.get('/post/:postId', function (req, res, next) {
+app.get('/page/:pageNum', function (req, res) {
+
+    let skipNum = page_posts * (req.params.pageNum - 1);
+    return post.find({unlink: false}).sort('-postId').skip(skipNum).limit(page_posts).exec(function(err, result) {
+        if (err)
+            console.log('find post error ' + err);
+
+        if(result) {
+            res.status(200);
+            res.render('allpost', {result, username : req.cookies.username || 'vistor'});
+        }
+    });
+
+});
+
+
+app.get('/post/:postId', function (req, res) {
 
     post.findOne({postId: req.params.postId} ,function(err, result){
         if (err)
@@ -66,7 +83,7 @@ app.get('/post/:postId', function (req, res, next) {
 app.use('/post', function (req, res) {
 
     if(req.method === 'GET') {
-        post.find({} ,function(err, result){
+        return post.find({unlink: false} ,function(err, result){
             if (err)
                 console.log('find post error ' + err);
 
@@ -80,14 +97,15 @@ app.use('/post', function (req, res) {
 
         });
     }
-    else if(req.method === 'POST' && req.cookies.username !== 'visitor') {
-        console.log(req.body.remove)
+    if(req.method === 'POST') {
 
-        if(req.body.hasOwnProperty('remove')) {
+        let username = req.cookies.username;
 
-            post.findOne({postId: req.body.remove}, function(err, result) {
+        if(req.body.hasOwnProperty('remove')  && username !== 'visitor') {
 
-                if(result.author === req.cookies.username || req.cookies.username === 'comi'){
+            return post.findOne({postId: req.body.remove}, function(err, result) {
+
+                if(result.author === username || username === 'comi'){
                     post.findOneAndUpdate({postId: req.body.remove}, {unlink: true}, {upsert:true}, function(err, result){
                         if (err) return res.send(500, { error: err });
 
@@ -100,24 +118,27 @@ app.use('/post', function (req, res) {
             
 
         }
-        else if(req.body.hasOwnProperty('edit')) {
+        if(req.body.hasOwnProperty('edit')  && username !== 'visitor') {
             console.log('edit post')
-            post.findOne({postId: req.body.edit}, function(err, result) {
+            return post.findOne({postId: req.body.edit}, function(err, result) {
 
-                console.log('findOne')
-
-                if(result.author === req.cookies.username || req.cookies.username === 'comi')
+                if(result.author === username || username === 'comi')
                     res.redirect('/edit/' + req.body.edit);
                 else
                     res.redirect('/post');
             });
+
+        }
+        if(req.body.hasOwnProperty('read')) {
+            console.log('read post')
+            return res.redirect('/post/' + req.body.read);
+
+
         }
         
 
     }
-    else {
-        res.redirect('/post');
-    }
+    return res.redirect('/post');
 
 });
 
@@ -236,8 +257,7 @@ app.use('/', function (req, res) {
                 request(options, function (error, response, body) {
                     if (error) throw new Error(error);
 
-                    let resbody = JSON.parse(response.body)
-                    let Ip = resbody.sourceIp;
+                    let Ip = response.body.sourceIp;
                     console.log(Ip);
 
                     res.status(200);
@@ -253,7 +273,7 @@ app.use('/', function (req, res) {
     }
     else if(req.method === 'POST'  && req.body.hasOwnProperty('login')) {
         console.log('login')
-        if(req.body.username.match(/\w/g)){
+        if(req.body.username.match(/^[a-zA-Z0-9\s]+$/g)){
             console.log(req.body.username + ' good username')
             res.cookie('username', req.body.username , {maxAge: 600 * 1000});
             res.redirect('/post');

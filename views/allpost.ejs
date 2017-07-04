@@ -1,37 +1,37 @@
 <head>
     <meta charset="utf-8">
     <title>All Post</title>
+    <link rel="stylesheet" type="text/css" href="/css/allpost.css">
 </head>
 <body>
     <h1>All Post</h1>
     <p>身份: <%=username%> </p>
     <a href = "http://127.0.0.1:3000/new"><button>New Post</button></a>
-    <a href = "http://127.0.0.1:3000/"><button name="logout">Back Home</button></a>
+    <a href = "http://127.0.0.1:3000/"><button name="back">Back Home</button></a>
 
     <hr></hr>
     <div>
         <% for(var i in result) { %>
-            <% if(!result[i].unlink) {%>
             <!-- <li><%= result[i].postId %></li> -->
             <h2><%= result[i].title %></h2>
             <p>Author: <%= result[i].author %></p>
             <p>--</p>
-            <pre style="font-size: 20px"><%= result[i].message %></pre>
+            <pre class="msg"><%= result[i].message %></pre>
             <p>Comment: <%= result[i].comment %></p>
             <p>Date: <%= result[i].date %></p>
             <form method="post">
+                <button name="read" value=<%= result[i].postId %>  >Read Post</button>
                 <button name="edit" value=<%= result[i].postId %>  >Edit Post</button>
                 <button name="remove" value=<%= result[i].postId %>  >Remove Post</button>
             </form>
             <hr></hr>
-            <% } %>
         <% } %>
     </div>
 
 
 
     <a href = "http://127.0.0.1:3000/new"><button>New Post</button></a>
-    <a href = "http://127.0.0.1:3000/"><button name="logout">Back Home</button></a>
+    <a href = "http://127.0.0.1:3000/"><button name="back">Back Home</button></a>
     <hr>
 
 </body>

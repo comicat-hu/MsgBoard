@@ -1,11 +1,13 @@
 <head>
     <meta charset="utf-8">
     <title>Post#<%= postId%></title>
+    <link rel="stylesheet" type="text/css" href="/css/post.css">
 </head>
 <body>
     <h2><%= title %></h2>
     <p>Author: <%= author %></p>
-    <p>Message: <%= message %></p>
+    <p>--</p>
+    <pre class="msg"><%= message %></pre>
     <p>Comments: <%= comments %></p>
     <p>Date: <%= date %></p>
     <hr></hr>

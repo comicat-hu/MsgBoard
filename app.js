@@ -15,7 +15,6 @@ db.once('open', function callback () { console.log("Database Connected."); });
 
 //PostSchema
 var schema = require('./public/js/schema.js');
-
 var post = mongoose.model('post', schema);
 
 
@@ -28,6 +27,9 @@ app.use(express.static(__dirname + '/public'));
 
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
+
+var router = express.Router();
+
 
 //request
 var request = require("request");
@@ -46,23 +48,8 @@ var options = {
 const page_posts = 5;
 
 
-app.get('/page/:pageNum', function (req, res) {
 
-    let skipNum = page_posts * (req.params.pageNum - 1);
-    return post.find({unlink: false}).sort('-postId').skip(skipNum).limit(page_posts).exec(function(err, result) {
-        if (err)
-            console.log('find post error ' + err);
-
-        if(result) {
-            res.status(200);
-            res.render('allpost', {result, username : req.cookies.username || 'vistor'});
-        }
-    });
-
-});
-
-
-app.get('/post/:postId', function (req, res) {
+router.get('/post/:postId', function (req, res) {
 
     post.findOne({postId: req.params.postId} ,function(err, result){
         if (err)
@@ -80,20 +67,36 @@ app.get('/post/:postId', function (req, res) {
 
 });
 
-app.use('/post', function (req, res) {
+router.all('/list/:page', function (req, res) {
 
     if(req.method === 'GET') {
-        return post.find({unlink: false} ,function(err, result){
+
+        if(!req.params.page.match(/^[\d]+$/g)){
+            res.status(400);
+            res.send('invalid url !');
+        }
+
+        let skipNum = page_posts * (+req.params.page - 1);
+
+        // Not complete!
+        // make page number > posts number ,redirect. but it can return to top function
+        //
+        // post.count({unlink: false}, function(err, count) {
+        //     if(skipNum > count)
+        //         return res.redirect('/list/1');
+        // });
+
+        return post.find({unlink: false}).sort('-postId').skip(skipNum).limit(page_posts).exec(function(err, result) {
             if (err)
                 console.log('find post error ' + err);
 
             if(result) {
                 res.status(200);
-                res.render('allpost', {result, username : req.cookies.username || 'vistor'});
-            }else {
-                res.status(200);
-                res.send('No post here :(');
+                return res.render('list', {result, username : req.cookies.username || 'vistor'});
             }
+
+            res.status(404);
+            res.send('No post here :(');
 
         });
     }
@@ -112,7 +115,7 @@ app.use('/post', function (req, res) {
                         console.log("success remove");
                     });
                 }
-                res.redirect('/post');
+                res.redirect('/list/1');
 
             });
             
@@ -138,14 +141,14 @@ app.use('/post', function (req, res) {
         
 
     }
-    return res.redirect('/post');
+    return res.redirect('/list/1');
 
 });
 
 
 
 
-app.use('/edit/:postId', function (req, res) {
+router.all('/edit/:postId', function (req, res) {
 
     if(req.method === 'GET') {
         
@@ -154,13 +157,20 @@ app.use('/edit/:postId', function (req, res) {
             if (err)
                 console.log('find post error ' + err);
 
-            if(result && !result.unlink) {
-                res.status(200);
-                res.render('editpost', result);
-            }else {
-                res.status(404);
-                res.send('Post not find or been remove Q_Q')
+            let username = req.cookies.username;
+
+            if(result && result.author !== username || username === 'visitor') {
+                res.status(401);
+                return res.send('You are visitor or not an author of the post');
             }
+
+            if(result && !result.unlink) {
+                return res.render('editpost', result);
+            }
+
+            res.status(404);
+            res.send('Post not find or been remove Q_Q');
+
 
         });
     }
@@ -182,7 +192,7 @@ app.use('/edit/:postId', function (req, res) {
         res.redirect('/post/' + req.params.postId); 
     }else {
 
-        res.redirect('/post')
+        res.redirect('/list/1')
         
     }
 
@@ -190,7 +200,7 @@ app.use('/edit/:postId', function (req, res) {
 
 
 
-app.use('/new', function (req, res) {
+router.all('/new', function (req, res) {
 
     if(req.method === 'GET') {
         console.log(req.method + ' 127.0.0.1:3000/new')
@@ -230,16 +240,18 @@ app.use('/new', function (req, res) {
         });
 
     }else {
-        res.redirect('/post');
+        res.redirect('/list/1');
     }
 
 
 });
 
-app.use('/', function (req, res) {
 
+
+router.all(['/','/index'], function (req, res) {
     if(req.method === 'GET') {
         console.log(req.method + ' 127.0.0.1:3000/')
+        
 
 
         if (req.cookies.username) {
@@ -257,7 +269,7 @@ app.use('/', function (req, res) {
                 request(options, function (error, response, body) {
                     if (error) throw new Error(error);
 
-                    let Ip = response.body.sourceIp;
+                    let Ip = body.sourceIp;
                     console.log(Ip);
 
                     res.status(200);
@@ -276,7 +288,7 @@ app.use('/', function (req, res) {
         if(req.body.username.match(/^[a-zA-Z0-9\s]+$/g)){
             console.log(req.body.username + ' good username')
             res.cookie('username', req.body.username , {maxAge: 600 * 1000});
-            res.redirect('/post');
+            res.redirect('/list/1');
         }
         else{
             console.log(req.body.username + ' invalid username')
@@ -288,7 +300,7 @@ app.use('/', function (req, res) {
 
         console.log('login by visitor')
         res.cookie('username', 'visitor' , {maxAge: 600 * 1000});
-        res.redirect('/post');
+        res.redirect('/list/1');
 
     }
     else {
@@ -298,8 +310,7 @@ app.use('/', function (req, res) {
 
 });
 
-
-
+app.use('/', router);
 
 app.listen(3000, function () {
     console.log('Listening on port 3000!');

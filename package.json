@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon app.js",
+    "start-mongo-docker": "docker run -it --rm --name mongo-msgdb -v ~/MsgBoard/msgdb:/data/db mongo",
+    "start-dev-docker": "docker run -it --rm -v ~/MsgBoard:/myapp -p 3000:3000 --link mongo-msgdb mynode6",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

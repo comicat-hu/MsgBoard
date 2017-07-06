@@ -239,12 +239,12 @@ router.all(['/','/index'], function (req, res) {
 
         if (req.cookies.username) {
             console.log(req.cookies.username + ' repeat visit!');
-            return res.render('oops', {msg: 'Invalid username. You can only use [A-Za-z0-9]'});
+        }else {
+            res.cookie('username', 'visitor', {maxAge: 600 * 1000});
+            console.log('first visit');
         }
-        res.cookie('username', 'visitor', {maxAge: 600 * 1000});
-        console.log('first visit');
 
-        post.count({unlink: false}, function(err, nowPosts){
+        return post.count({unlink: false}, function(err, nowPosts){
 
             post.count({}, function(err, totalPosts){
 
@@ -267,11 +267,11 @@ router.all(['/','/index'], function (req, res) {
         if(req.body.username.match(/^[a-zA-Z0-9\s]+$/g)){
             console.log(req.body.username + ' good username')
             res.cookie('username', req.body.username , {maxAge: 600 * 1000});
-            res.redirect('/list/1');
+            return res.redirect('/list/1');
         }
         else{
             console.log(req.body.username + ' invalid username')
-            res.redirect('/');
+            return res.render('oops', {msg: 'Invalid username. You can only use [A-Za-z0-9]'});
         }
 
     }
@@ -279,7 +279,7 @@ router.all(['/','/index'], function (req, res) {
 
         console.log('login by visitor')
         res.cookie('username', 'visitor' , {maxAge: 600 * 1000});
-        res.redirect('/list/1');
+        return res.redirect('/list/1');
 
     }
     console.log('redirect /')

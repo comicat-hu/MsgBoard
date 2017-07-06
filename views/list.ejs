@@ -9,15 +9,16 @@
 <body>
     <h1>Posts List</h1>
     <p>身份: <%=username%> </p>
-    <a href = "http://127.0.0.1:3000/new"><button>New Post</button></a>
-    <a href = "http://127.0.0.1:3000/"><button name="back">Back Home</button></a>
-    <button><<</button>
-    <button>>></button>
+    <form method="post">
+        <button name="new">New Post</button>
+        <button name="back">Back Home</button>
+        <button name="pre"><<</button>
+        <button name="next">>></button>
+    </form>
 
     <hr></hr>
     <div>
         <% for(var i in result) { %>
-            <!-- <li><%= result[i].postId %></li> -->
             <h2><%= result[i].title %></h2>
             <p>Author: <%= result[i].author %></p>
             <p>--</p>
@@ -34,11 +35,12 @@
     </div>
 
 
-
-    <a href = "http://127.0.0.1:3000/new"><button>New Post</button></a>
-    <a href = "http://127.0.0.1:3000/"><button name="back">Back Home</button></a>
-    <button><<</button>
-    <button>>></button>
+    <form method="post">
+        <button name="new">New Post</button>
+        <button name="back">Back Home</button>
+        <button name="pre"><<</button>
+        <button name="next">>></button>
+    </form>
     <hr>
 
 </body>

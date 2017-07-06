@@ -29,7 +29,11 @@ var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
 var router = express.Router();
+app.use('/', router);
 
+var helmet = require('helmet');
+app.use(helmet());
+app.use(helmet.frameguard());
 
 //request
 var request = require("request");
@@ -60,7 +64,7 @@ router.get('/post/:postId', function (req, res) {
             res.render('post', result);
         }else {
             res.status(404);
-            res.send('Post not find or been remove Q_Q')
+            res.render('oops', {msg: 'Post not find or been remove Q_Q'});
         }
 
     });
@@ -73,7 +77,7 @@ router.all('/list/:page', function (req, res) {
 
         if(!req.params.page.match(/^[\d]+$/g)){
             res.status(400);
-            res.send('invalid url !');
+            res.render('oops', {msg: 'Invalid url !'});
         }
 
         let skipNum = page_posts * (+req.params.page - 1);
@@ -96,7 +100,7 @@ router.all('/list/:page', function (req, res) {
             }
 
             res.status(404);
-            res.send('No post here :(');
+            res.render('oops', {msg: 'No post here.'});
 
         });
     }
@@ -125,10 +129,10 @@ router.all('/list/:page', function (req, res) {
             console.log('edit post')
             return post.findOne({postId: req.body.edit}, function(err, result) {
 
-                if(result.author === username || username === 'comi')
+                if(result && result.author === username || username === 'comi')
                     res.redirect('/edit/' + req.body.edit);
                 else
-                    res.redirect('/post');
+                    res.redirect('/list/1');
             });
 
         }
@@ -161,7 +165,7 @@ router.all('/edit/:postId', function (req, res) {
 
             if(result && result.author !== username || username === 'visitor') {
                 res.status(401);
-                return res.send('You are visitor or not an author of the post');
+                return res.render('oops', {msg: 'You are visitor or not an author of the post'});
             }
 
             if(result && !result.unlink) {
@@ -169,7 +173,7 @@ router.all('/edit/:postId', function (req, res) {
             }
 
             res.status(404);
-            res.send('Post not find or been remove Q_Q');
+            res.render('oops', {msg: 'Post not find or been remove Q_Q'});
 
 
         });
@@ -310,7 +314,6 @@ router.all(['/','/index'], function (req, res) {
 
 });
 
-app.use('/', router);
 
 app.listen(3000, function () {
     console.log('Listening on port 3000!');

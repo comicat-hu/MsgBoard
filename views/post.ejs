@@ -5,6 +5,7 @@
     <title>Post#<%= postId%></title>
     <link rel="stylesheet" type="text/css" href="/css/post.css">
     <link rel="icon" href="/png/favicon.png">
+    <script type="text/javascript" src="/js/back.js"></script>
 </head>
 <body>
     <h2><%= title %></h2>
@@ -14,7 +15,6 @@
     <p>Comments: <%= comments %></p>
     <p>Date: <%= date %></p>
     <hr></hr>
-    <!--<a href="#" onClick="history.go(-1); return false;"><button>Back Posts List</button></a>-->
-    <a href="http://127.0.0.1:3000/list/1"><button>Back Posts List</button></a>
+    <button onclick="back()">Back Posts List</button>
 </body>
 </html>

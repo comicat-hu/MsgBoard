@@ -40,6 +40,8 @@ use nodejs, express, docker, mongodb.
 
 ### How to active
 
+git clone https://github.com/comicat-hu/MsgBoard.git
+
 docker-compose build
 
 docker-compose up

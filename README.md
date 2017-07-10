@@ -1,4 +1,4 @@
-#MsgBoard#
+#MsgBoard
 
 A message board practice.
 
@@ -7,7 +7,7 @@ use nodejs, express, docker, mongodb.
 ---
 
 
-##MongoDB##
+##MongoDB
 
 - db = msgdb
 
@@ -15,7 +15,7 @@ use nodejs, express, docker, mongodb.
 
 ---
 
-##Page Url##
+##Page Url
 
 
 - Host: 127.0.0.1
@@ -43,7 +43,7 @@ use nodejs, express, docker, mongodb.
 
 ---
 
-##How to active##
+##How to active
 
 docker-compose build
 

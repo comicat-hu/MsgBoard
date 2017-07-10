@@ -1,21 +1,21 @@
-#MsgBoard
+# MsgBoard
 
 A message board practice.
 
-use nodejs, express, docker, mongodb.
+use nodejs, express, docker, mongodb.	
 
----
+-
 
 
-##MongoDB
+### MongoDB
 
 - db = msgdb
 
 - collections = post(s)
 
----
+-
 
-##Page Url
+### Page Url
 
 
 - Host: 127.0.0.1
@@ -36,17 +36,20 @@ use nodejs, express, docker, mongodb.
 - Remove post by unlink(key) data
 
 
----
+-
 
-[docker image](https://hub.docker.com/r/comi/msgboard/)  (dev use node:6)
-
-
----
-
-##How to active
+### How to active
 
 docker-compose build
 
 docker-compose up
+
+
+-
+
+### Docker Hub
+
+[Docker Image](https://hub.docker.com/r/comi/msgboard/)  (dev use node:6)
+
 
 

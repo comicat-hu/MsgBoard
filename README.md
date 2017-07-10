@@ -3,45 +3,45 @@ A message board practice.
 use nodejs, express, docker, mongodb.
 
 
+-----mongoDB-----
+
+
 db = msgdb, collections = post(s)
+
 
 
 -----url-----
 
 
-index: localhost:3000/
+Host: 127.0.0.1
 
-new post: /new
-
-posts list: /list/:page
-
-post: post/:postId
-
-edit: edit/:postId
-
-------------
-
-
-remove post by unlink(key)
+Port: 3000
 
 
 
+Index: /
 
-docker image: https://hub.docker.com/r/comi/msgboard/ (dev use node:6)
+New post: /new
+
+Posts list: /list/:page
+
+Read post: post/:postId
+
+Edit post: edit/:postId
+
+Remove post by unlink(key) data
 
 
------npm script-----
 
 
-npm run start-mongo-docker
+[docker image](https://hub.docker.com/r/comi/msgboard/)  (dev use node:6)
 
 
-(run a mongoDB and volume data/db)
+-----docker ins-----
+
+docker-compose build
 
 
-
-npm run start-dev-docker
-
-(run a node6 with nodemon expose port 3000)
+docker-compose up
 
 

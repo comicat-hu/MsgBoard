@@ -13,7 +13,7 @@ app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({ extended: true }));    // to support URL-encoded bodies
 
 //for access mongodb
-mongoose.connect('mongodb://mongo-msgdb:27017/msgdb');
+mongoose.connect('mongodb://msgboard_mongo_1:27017/msgdb');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -35,6 +35,7 @@ app.use('/', router);
 
 //security?
 app.use(helmet());
+app.use(helmet.frameguard({ action: 'sameorigin' }));
 app.disable('x-powered-by');
 
 // find ip request options
@@ -77,7 +78,7 @@ router.all('/list/:page', function (req, res) {
         //page only can be a positive number no lead zero
         if(!req.params.page.match(/^[1-9][0-9]*$/g)){
             res.status(400);
-            res.render('oops', {msg: 'Invalid url !'});
+            return res.render('oops', {msg: 'Invalid url !'});
         }
 
         let skipNum = page_posts * (+req.params.page - 1);

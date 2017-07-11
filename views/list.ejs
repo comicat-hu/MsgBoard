@@ -16,7 +16,7 @@
         <button name="next">>></button>
     </form>
 
-    <hr></hr>
+    <hr>
     <div>
         <% for(var i in result) { %>
             <h2><%= result[i].title %></h2>
@@ -30,7 +30,7 @@
                 <button name="edit" value=<%= result[i].postId %>  >Edit Post</button>
                 <button name="remove" value=<%= result[i].postId %>  >Remove Post</button>
             </form>
-            <hr></hr>
+            <hr>
         <% } %>
     </div>
 

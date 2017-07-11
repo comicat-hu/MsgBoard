@@ -1,7 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var cookieParser = require('cookie-parser');
+//var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var helmet = require('helmet');
 var request = require('request');
 
@@ -28,7 +29,13 @@ app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 
 //for cookie use
-app.use(cookieParser());
+//app.use(cookieParser());
+
+// use session
+app.use(session({
+    secret: 'msgboard',
+    cookie: { maxAge: 60 * 1000 }
+}));
 
 var router = express.Router();
 app.use('/', router);
@@ -89,7 +96,7 @@ router.all('/list/:page', function (req, res) {
 
             if(result && result.length > 0) {
                 res.status(200);
-                return res.render('list', {result, username : req.cookies.username || 'visitor'});
+                return res.render('list', {result, username : req.session.username || 'visitor'});
             }
 
             res.status(404);
@@ -99,7 +106,7 @@ router.all('/list/:page', function (req, res) {
     }
     if(req.method === 'POST') {
 
-        let username = req.cookies.username || 'visitor';
+        let username = req.session.username || 'visitor';
 
         if(req.body.hasOwnProperty('remove')  && username !== 'visitor') {
 
@@ -157,7 +164,7 @@ router.all('/edit/:postId', function (req, res) {
             if (err)
                 console.log('find post error ' + err);
 
-            let username = req.cookies.username || 'visitor';
+            let username = req.session.username || 'visitor';
 
             if(result && result.author !== username || username === 'visitor') {
                 res.status(401);
@@ -197,7 +204,7 @@ router.all('/new', function (req, res) {
     if(req.method === 'GET') {
         console.log(req.method + ' 127.0.0.1:3000/new')
         res.status(200);
-        return res.render('newpost', {content: 'Write Something', username: req.cookies.username || 'visitor'})
+        return res.render('newpost', {content: 'Write Something', username: req.session.username || 'visitor'})
     }
     if(req.method === 'POST' && req.body.hasOwnProperty('post')) {
 
@@ -212,7 +219,7 @@ router.all('/new', function (req, res) {
 
                 postId: postId,
                 title:  req.body.title || 'No title',
-                author: req.body.author || req.cookies.username || 'visitor',
+                author: req.body.author || req.session.username || 'visitor',
                 message:   req.body.message,
                 date: new Date(),
                 unlink: false,
@@ -238,10 +245,11 @@ router.all(['/','/index'], function (req, res) {
     if(req.method === 'GET') {
         console.log(req.method + ' 127.0.0.1:3000/')
 
-        if (req.cookies.username) {
-            console.log(req.cookies.username + ' repeat visit!');
+        if (req.session.username) {
+            console.log(req.session.username + ' repeat visit!');
         }else {
-            res.cookie('username', 'visitor', {maxAge: 600 * 1000});
+            //res.cookie('username', 'visitor', {maxAge: 600 * 1000});
+            req.session.username = 'visitor';
             console.log('first visit');
         }
 
@@ -256,7 +264,7 @@ router.all(['/','/index'], function (req, res) {
                     console.log(Ip);
 
                     res.status(200);
-                    res.render('index', {username: req.cookies.username || 'visitor', nowPosts, totalPosts, Ip});
+                    res.render('index', {username: req.session.username || 'visitor', nowPosts, totalPosts, Ip});
                 });
 
             });
@@ -267,7 +275,8 @@ router.all(['/','/index'], function (req, res) {
         console.log('login')
         if(req.body.username.match(/^[a-zA-Z0-9\s]+$/g)){
             console.log(req.body.username + ' good username')
-            res.cookie('username', req.body.username , {maxAge: 600 * 1000});
+            //res.cookie('username', req.body.username , {maxAge: 600 * 1000});
+            req.session.username = req.body.username;
             return res.redirect('/list/1');
         }
         else{
@@ -279,7 +288,8 @@ router.all(['/','/index'], function (req, res) {
     if(req.method === 'POST'  && req.body.hasOwnProperty('visit')) {
 
         console.log('login by visitor')
-        res.cookie('username', 'visitor' , {maxAge: 600 * 1000});
+        //res.cookie('username', 'visitor' , {maxAge: 600 * 1000});
+        req.session.username = 'visitor';
         return res.redirect('/list/1');
 
     }

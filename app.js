@@ -1,9 +1,10 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-//var cookieParser = require('cookie-parser');
+var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var helmet = require('helmet');
+var csrf = require('csurf');
 var request = require('request');
 
 var schema = require('./public/js/schema.js');
@@ -28,8 +29,8 @@ app.set('view engine', 'ejs');
 //set where static file
 app.use(express.static(__dirname + '/public'));
 
-//for cookie use
-//app.use(cookieParser());
+//for cookie use, csrf need it
+app.use(cookieParser());
 
 // use session
 app.use(session({
@@ -44,6 +45,8 @@ app.use('/', router);
 app.use(helmet());
 app.use(helmet.frameguard({ action: 'sameorigin' }));
 app.disable('x-powered-by');
+
+var csrfProtection = csrf({ cookie: true });
 
 // find ip request options
 var options = { 
@@ -60,7 +63,7 @@ var options = {
 const page_posts = 5;
 
 
-router.get('/post/:postId', function (req, res) {
+router.get('/post/:postId', csrfProtection, function (req, res) {
 
     post.findOne({postId: req.params.postId} ,function(err, result){
         if (err)
@@ -78,7 +81,7 @@ router.get('/post/:postId', function (req, res) {
 
 });
 
-router.all('/list/:page', function (req, res) {
+router.all('/list/:page', csrfProtection, function (req, res) {
 
     if(req.method === 'GET') {
 
@@ -96,7 +99,7 @@ router.all('/list/:page', function (req, res) {
 
             if(result && result.length > 0) {
                 res.status(200);
-                return res.render('list', {result, username : req.session.username || 'visitor'});
+                return res.render('list', {result, username : req.session.username || 'visitor', csrfToken: req.csrfToken()});
             }
 
             res.status(404);
@@ -156,7 +159,7 @@ router.all('/list/:page', function (req, res) {
     return res.render('oops', {msg: 'You are visitor or not an author of the post'});
 });
 
-router.all('/edit/:postId', function (req, res) {
+router.all('/edit/:postId', csrfProtection, function (req, res) {
 
     if(req.method === 'GET') {
 
@@ -172,7 +175,7 @@ router.all('/edit/:postId', function (req, res) {
             }
 
             if(result && !result.unlink) {
-                return res.render('editpost', result);
+                return res.render('editpost', {result, csrfToken: req.csrfToken()});
             }
 
             res.status(404);
@@ -199,12 +202,12 @@ router.all('/edit/:postId', function (req, res) {
     res.render('oops', {msg: 'server error'});
 });
 
-router.all('/new', function (req, res) {
+router.all('/new', csrfProtection, function (req, res) {
 
     if(req.method === 'GET') {
         console.log(req.method + ' 127.0.0.1:3000/new')
         res.status(200);
-        return res.render('newpost', {content: 'Write Something', username: req.session.username || 'visitor'})
+        return res.render('newpost', {content: 'Write Something', username: req.session.username || 'visitor', csrfToken: req.csrfToken()})
     }
     if(req.method === 'POST' && req.body.hasOwnProperty('post')) {
 
@@ -241,7 +244,7 @@ router.all('/new', function (req, res) {
     res.render('oops', {msg: 'server error'});
 });
 
-router.all(['/','/index'], function (req, res) {
+router.all(['/','/index'], csrfProtection, function (req, res) {
     if(req.method === 'GET') {
         console.log(req.method + ' 127.0.0.1:3000/')
 
@@ -264,7 +267,7 @@ router.all(['/','/index'], function (req, res) {
                     console.log(Ip);
 
                     res.status(200);
-                    res.render('index', {username: req.session.username || 'visitor', nowPosts, totalPosts, Ip});
+                    res.render('index', {username: req.session.username || 'visitor', nowPosts, totalPosts, Ip, csrfToken: req.csrfToken()});
                 });
 
             });

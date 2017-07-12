@@ -40,11 +40,11 @@ use nodejs, express, docker, mongodb.
 
 ### How to active
 
-git clone https://github.com/comicat-hu/MsgBoard.git
+> git clone https://github.com/comicat-hu/MsgBoard.git
 
-docker-compose build
+> docker-compose build
 
-docker-compose up
+> docker-compose up
 
 
 --
@@ -52,6 +52,16 @@ docker-compose up
 ### Docker Hub
 
 [Docker Image](https://hub.docker.com/r/comi/msgboard/)  (dev use node:6)
+
+
+--
+
+### some bugs and not complete and notes
+
+post comment have't implement.
+
+helmet module I don't know how it work.
+
 
 
 

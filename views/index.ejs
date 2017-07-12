@@ -20,6 +20,8 @@
             <button type="submit" name="visit">Visitor</button>
         </h4>
         <p class="hint">only use: [A-Za-z0-9]</p>
+
+        <input type="hidden" name="_csrf" value= <%= csrfToken %> >
     </form>
 
     <p>---</p>

@@ -14,6 +14,7 @@
         <button name="back">Back Home</button>
         <button name="pre"><<</button>
         <button name="next">>></button>
+        <input type="hidden" name="_csrf" value= <%= csrfToken %> >
     </form>
 
     <hr>
@@ -29,6 +30,7 @@
                 <button name="read" value=<%= result[i].postId %>  >Read Post</button>
                 <button name="edit" value=<%= result[i].postId %>  >Edit Post</button>
                 <button name="remove" value=<%= result[i].postId %>  >Remove Post</button>
+                <input type="hidden" name="_csrf" value= <%= csrfToken %> >
             </form>
             <hr>
         <% } %>
@@ -40,6 +42,7 @@
         <button name="back">Back Home</button>
         <button name="pre"><<</button>
         <button name="next">>></button>
+        <input type="hidden" name="_csrf" value= <%= csrfToken %> >
     </form>
     <hr>
 

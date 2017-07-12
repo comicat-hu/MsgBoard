@@ -21,6 +21,8 @@
         <% } %>
         <button type="submit" name="post">Post</button>
         <button name="cancel">Cancel</button>
+
+        <input type="hidden" name="_csrf" value= <%= csrfToken %> >
     </form>
     <hr>
 </body>
